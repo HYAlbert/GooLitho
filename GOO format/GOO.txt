@@ -1,0 +1,170 @@
+GOO FORMAT SPECIFICATION V1.2
+
+DESCRIPTION
+The Goo file consists of a header-info, layer-content, and ending-string. The sequence is as follows:
+
+Segment Header Info
+
+Layer Content 1 ... Layer Content N
+
+Ending String
+
+Ending String Structure:
+0x00 0x00 000 007 000 0x00 0x00 044 0x4C 0x50 0x00
+
+================================================================================
+SEGMENT TYPE: HEADER INFO
+
+Index | Field                     | Type        | Length (byte) | Definitions
+
+0     | version                   | String      | 4             | Format version
+1     | Magic Tag                 | String      | 8             | Fix constant: 0x07 0x00 0x00 0x00 0x44 0x4C 0x50 0x00
+2     | Software info             | String      | 32            | Software info
+3     | Software version          | String      | 24            | Software version
+4     | File time                 | String      | 24            | File create time
+5     | Printer name              | String      | 32            | Printer name
+6     | Printer type              | String      | 32            | Printer type
+7     | Profile name              | String      | 32            | Resin profile name
+8     | Anti-aliasing level       | short int   | 2             | Anti-aliasing level setting by slicer
+9     | Grey level                | short int   | 2             | Grey level
+10    | Blur level                | short int   | 2             | Blur level
+11    | Preview Image Data        | RGB_565     | 2116116       | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
+12    | Delimiter                 | String      | 2             | Fix string: 0x0d, 0x0a
+13    | Big preview Image Data    | RGB_565     | 2290290       | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
+14    | Delimiter                 | String      | 2             | Fix string: 0x0d, 0x0a
+15    | Total layers              | int         | 4             | Total number of layers
+16    | X resolution              | short int   | 2             | Resolution of printing LCD in x direction
+17    | Y resolution              | short int   | 2             | Resolution of printing LCD in y direction
+18    | X mirror                  | bool        | 1             | 1 is mirror. Indicates if the image is mirrored by Slicer
+19    | Y mirror                  | bool        | 1             | 1 is mirror
+20    | X size of platform        | float       | 4             | Unit: mm. The active area of printing in x direction (e.g., 165.00mm)
+21    | Y size of platform        | float       | 4             | Unit: mm. The active area of printing in y direction (e.g., 71.28mm)
+22    | Z size of platform        | float       | 4             | Unit: mm. The active area of printing in z direction
+23    | Layer thickness           | float       | 4             | Unit: mm
+24    | Common exposure time      | float       | 4             | Common layer exposure time. Unit: s
+25    | Exposure delay mode       | bool        | 1             | 1: use "Static time"; 0: use "Turn Off time"
+26    | Turn off time             | float       | 4             | Delay time of layer exposure in Turn-off-time mode. Unit: s
+27    | Bottom before lift time   | float       | 4             | Waiting time before lift for bottom layers. Unit: s
+28    | Bottom after lift time    | float       | 4             | Waiting time after lift for bottom layers. Unit: s
+29    | Bottom after retract time | float       | 4             | Waiting time after retract for bottom layers. Unit: s
+30    | Before lift time          | float       | 4             | Waiting time before lift for common layers. Unit: s
+31    | After lift time           | float       | 4             | Waiting time after lift for common layers. Unit: s
+32    | After retract time        | float       | 4             | Waiting time after retract for common layers. Unit: s
+33    | Bottom exposure time      | float       | 4             | Exposure time of bottom layer. Unit: s
+34    | Bottom layers             | int         | 4             | The number of bottom layers
+35    | Bottom lift distance      | float       | 4             | The lift distance for bottom layers
+36    | Bottom lift speed         | float       | 4             | Lift speed for bottom layers. Unit: mm/min
+37    | Lift distance             | float       | 4             | Lift distance for common layers. Unit: mm
+38    | Lift speed                | float       | 4             | Lift speed for common layers. Unit: mm/min
+39    | Bottom retract distance   | float       | 4             | Retract distance for bottom layers. Unit: mm
+40    | Bottom retract speed      | float       | 4             | Retract speed for bottom layers. Unit: mm/min
+41    | Retract distance          | float       | 4             | Retract distance for common layers. Unit: mm
+42    | Retract speed             | float       | 4             | Retract speed for common layers. Unit: mm/min
+43    | Bottom second lift dist   | float       | 4             | Lift distance of second stage for bottom layers. Unit: mm
+44    | Bottom second lift speed  | float       | 4             | Lift speed of second stage for bottom layers. Unit: mm/min
+45    | Second lift distance      | float       | 4             | Lift distance of second stage for common layers. Unit: mm
+46    | Second lift speed         | float       | 4             | Lift speed of second stage for common layers. Unit: mm/min
+47    | Bottom 2nd retract dist   | float       | 4             | Retract distance of second stage for bottom layers. Unit: mm
+48    | Bottom 2nd retract speed  | float       | 4             | Retract speed of second stage for bottom layers. Unit: mm/min
+49    | Second retract distance   | float       | 4             | Retract distance of second stage for common layers. Unit: mm
+50    | Second retract speed      | float       | 4             | Retract speed of second stage for common layers. Unit: mm/min
+51    | Bottom light PWM          | short int   | 2             | The power of light for bottom layers. Range 0~255
+52    | Light PWM                 | short int   | 2             | The power of light for common layers. Range 0~255
+53    | Advance mode              | bool        | 1             | 0: normal mode; 1: advance mode (printing uses value of "Layer Definition Content")
+54    | Printing time             | int         | 4             | The printing times. Unit: s
+55    | Total volume              | float       | 4             | The volume of all parts. Unit: mm3
+56    | Total weight              | float       | 4             | The weight of all parts. Unit: g
+57    | Total price               | float       | 4             | The cost of all resin used
+58    | Price unit                | String      | 8             | The unit of price. eg: $
+59    | Offset of LayerContent    | int         | 4             | Position of LayerContent start address. Eg: 0x2FAB7
+60    | Gray scale level          | bool        | 1             | 0: pixel gray value 0x0-0xf; 1: pixel gray value 0x0-0xff
+61    | Transition layers         | short int   | 2             | The number of transition layers
+
+================================================================================
+SEGMENT TYPE: LAYER CONTENT
+
+--- Child Field: Layer Definition ---
+
+Index | Field                     | Type        | Length (byte) | Definitions
+
+1     | Pause flag                | short int   | 2             | 0: reserve; 1: current layer pause printing
+2     | Pause position Z          | float       | 4             | The lift distance of Z axis when "Pause flag" equals 1. Unit: mm
+3     | Layer position Z          | float       | 4             | The height of current layer. Unit: mm
+4     | Layer exposure time       | float       | 4             | The exposure time of current layer. Unit: s
+5     | Layer off time            | float       | 4             | The off time of current layer (when "Exposure delay mode" set 0). Unit: s
+6     | Before lift time          | float       | 4             | Waiting time before lift for current layer (enabled when "Exposure delay mode" set 1). Unit: s
+7     | After lift time           | float       | 4             | Waiting time after lift for current layer (enabled when "Exposure delay mode" set 1). Unit: s
+8     | After retract time        | float       | 4             | Waiting time after retract for current layer (enabled when "Exposure delay mode" set 1). Unit: s
+9     | Lift distance             | float       | 4             | Lift distance for current layers. Unit: mm
+10    | Lift speed                | float       | 4             | Lift speed for current layers. Unit: mm/min
+11    | Second lift distance      | float       | 4             | Lift distance of second stage for current layers. Unit: mm
+12    | Second lift speed         | float       | 4             | Lift speed of second stage for current layers. Unit: mm/min
+13    | Retract distance          | float       | 4             | Retract distance for current layers. Unit: mm
+14    | Retract speed             | float       | 4             | Retract speed for current layers. Unit: mm/min
+15    | Second retract distance   | float       | 4             | Retract distance of second stage for current layers. Unit: mm
+16    | Second retract speed      | float       | 4             | Retract speed of second stage for current layers. Unit: mm/min
+17    | Light PWM                 | short int   | 2             | The power of light for current layers. Range 0~255
+18    | Delimiter                 | String      | 2             | Fix string: 0x0d, 0x0a
+
+--- Child Field: Data Size ---
+
+Index | Field     | Type | Length (byte) | Definitions
+
+1     | Data size | int  | 4             | The size of encoded image data
+
+--- Child Field: Image Data ---
+
+The image's encoding method is based on the RLE (Run-Length Encoding) scheme.
+
+There is a magic number 0x55 at the beginning of this field.
+
+There is an 8-bit checksum at the end of the image data (does not include the magic number 0x55).
+
+The chunk consists of several bytes. In Byte[0], there are two types of tags to indicate the pixel's value and length.
+
+[Byte0[7:6]: The type of chunk]
+
+Byte0[7:6] | Definitions
+
+00         | This chunk contains all 0x0 pixels.
+00 (Alt)   | This chunk contains the value of gray between 0x1 to 0xfe.
+01         | The gray value is after byte0.
+10         | This chunk contains the diff value from the previous pixel.
+11         | This chunk contains all 0xff pixels.
+
+[Byte0[5:4]: The length of chunk (except when Byte0[7:6] is [10])]
+
+Byte0[5:4] | Definitions
+
+00         | 4-bit run-length uses byte0[3:0]
+01         | The run-length consists of byte1[7:0] and byte0[3:0]
+10         | The run-length consists of byte1[7:0], byte2[7:0] and byte0[3:0]
+11         | The run-length consists of byte1[7:0], byte2[7:0], byte3[7:0] and byte0[3:0]
+
+[Special Case: When Byte0[7:6] is 10 (Diff Value Mode)]
+The meaning of Byte0[5:4] changes:
+
+Byte0[5] | Byte0[4] | Definitions
+
+0        | 0        | byte0[3:0] is the POSITIVE diff value. Current - Previous > 0. Range 0-15.
+0        | 1        | byte0[3:0] is the POSITIVE diff value. Run-length is in byte1[7:0].
+1        | 0        | byte0[3:0] is the NEGATIVE diff value. Current - Previous < 0. Range 0-15.
+1        | 1        | byte0[3:0] is the NEGATIVE diff value. Run-length is in byte1[7:0].
+
+[Examples]
+Byte[0] | Byte[1] | Byte[2] | Byte[3] | Byte[4] | Comment
+
+00111111| 0x55    | 0x56    | 0x57    |         | Pixel value is 0x0; run-length is 0x555657f.
+01110101| 0xaa    | 0xbb    | 0xcc    | 0x15    | Pixel value is 0xaa; run-length is 0xbbcc155.
+00000101|         |         |         |         | Pixel value is 0x0; run-length is 0x5.
+11110001| 0xcc    | 0xbb    | 0xaa    | 0xff    | Pixel value is 0xff; run-length is 0xccbbaaff1.
+10000001|         |         |         |         | Positive diff value is 1; run-length is 1.
+10010010| 0xff    |         |         |         | Positive diff value is 2; run-length is 0xff.
+10100001|         |         |         |         | Negative diff value is 1; run-length is 1.
+10110010| 0xee    |         |         |         | Negative diff value is 2; run-length is 0xee.
+
+--- Child Field: Delimiter ---
+
+Index | Field     | Type   | Length (byte) | Definitions
+
+1     | Delimiter | String | 2             | Fix string: 0x0d, 0x0a

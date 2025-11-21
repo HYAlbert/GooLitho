@@ -28,9 +28,9 @@ Index | Field                     | Type        | Length (byte) | Definitions
 8     | Anti-aliasing level       | short int   | 2             | Anti-aliasing level setting by slicer
 9     | Grey level                | short int   | 2             | Grey level
 10    | Blur level                | short int   | 2             | Blur level
-11    | Preview Image Data        | RGB_565     | 2116116       | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
+11    | Small Preview Image Data  | RGB_565     | 26912         | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
 12    | Delimiter                 | String      | 2             | Fix string: 0x0d, 0x0a
-13    | Big preview Image Data    | RGB_565     | 2290290       | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
+13    | Big preview Image Data    | RGB_565     | 168200        | 16-Bit color. Red(5bit), Green(6bit), Blue(5bit)
 14    | Delimiter                 | String      | 2             | Fix string: 0x0d, 0x0a
 15    | Total layers              | int         | 4             | Total number of layers
 16    | X resolution              | short int   | 2             | Resolution of printing LCD in x direction
@@ -80,6 +80,9 @@ Index | Field                     | Type        | Length (byte) | Definitions
 60    | Gray scale level          | bool        | 1             | 0: pixel gray value 0x0-0xf; 1: pixel gray value 0x0-0xff
 61    | Transition layers         | short int   | 2             | The number of transition layers
 
+Note: 
+Small Image Preview Data has a total of 2*116*116 = 26912 bytes
+Big Image Preview Data has a total of 2*290*290 = 168200 bytes
 ================================================================================
 SEGMENT TYPE: LAYER CONTENT
 
@@ -127,12 +130,11 @@ The chunk consists of several bytes. In Byte[0], there are two types of tags to 
 Byte0[7:6] | Definitions
 
 00         | This chunk contains all 0x0 pixels.
-00 (Alt)   | This chunk contains the value of gray between 0x1 to 0xfe.
-01         | The gray value is after byte0.
+01         | This chunk contains the value of gray between 0x1 to 0xfe. The gray value is after byte0.
 10         | This chunk contains the diff value from the previous pixel.
 11         | This chunk contains all 0xff pixels.
 
-[Byte0[5:4]: The length of chunk (except when Byte0[7:6] is [10])]
+[Byte0[5:4]: The length of chunk (except when Byte0[7:6] is [1 0])]
 
 Byte0[5:4] | Definitions
 
@@ -141,14 +143,14 @@ Byte0[5:4] | Definitions
 10         | The run-length consists of byte1[7:0], byte2[7:0] and byte0[3:0]
 11         | The run-length consists of byte1[7:0], byte2[7:0], byte3[7:0] and byte0[3:0]
 
-[Special Case: When Byte0[7:6] is 10 (Diff Value Mode)]
+[Special Case: When Byte0[7:6] is [1 0] (Diff Value Mode)]
 The meaning of Byte0[5:4] changes:
 
 Byte0[5] | Byte0[4] | Definitions
 
-0        | 0        | byte0[3:0] is the POSITIVE diff value. Current - Previous > 0. Range 0-15.
+0        | 0        | byte0[3:0] is the POSITIVE diff value. Current - Previous > 0. Difference within 0-15. 0x00 map to 0. 0x0f map to 15.
 0        | 1        | byte0[3:0] is the POSITIVE diff value. Run-length is in byte1[7:0].
-1        | 0        | byte0[3:0] is the NEGATIVE diff value. Current - Previous < 0. Range 0-15.
+1        | 0        | byte0[3:0] is the NEGATIVE diff value. Current - Previous < 0. Difference within 0-15. 0x00 map to 0. 0x0f map to 15.
 1        | 1        | byte0[3:0] is the NEGATIVE diff value. Run-length is in byte1[7:0].
 
 [Examples]

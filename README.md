@@ -185,6 +185,12 @@ GooLitho/
 - **Image Source**: Radio buttons for "Upload File" vs "Test Image"
 - **Mode Toggle**: Checkbox to enable "Advanced/Expert Mode" (unlocks full parameter list)
 
+### Inverse Lithography & Grayscale Support (Advanced)
+
+- **Pixel Modulation**: Supports 8-bit grayscale input (0-255) to enable sub-pixel resolution via anti-aliasing
+- **3D Micro-Structuring**: Enables "Grayscale Lithography" (variable cure depth) for fabricating microlenses and blazed gratings
+- **Global Intensity Control**: Allows user modulation of the LED Matrix PWM (0-100%)
+
 ---
 
 ## Data Flow
